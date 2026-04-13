@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAZA YERWADA — Public Complaint Portal</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4f6f5;color:#1a1a1a;font-size:15px;line-height:1.6}
+.topbar{background:#0F6E56;padding:0 1rem;display:flex;align-items:center;justify-content:space-between;height:54px;position:sticky;top:0;z-index:100}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-logo{width:36px;height:36px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#0F6E56}
+.brand-name{color:#fff;font-size:16px;font-weight:600}
+.brand-sub{color:#9FE1CB;font-size:11px}
+.lang-bar{display:flex;gap:4px}
+.lang-btn{padding:4px 10px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;transition:all .15s}
+.lang-btn.active{background:#fff;color:#0F6E56;font-weight:600}
+.nav{background:#fff;border-bottom:1px solid #e5e7e6;display:flex;overflow-x:auto;position:sticky;top:54px;z-index:99}
+.nav-tab{padding:14px 16px;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;color:#666;white-space:nowrap;transition:all .15s;flex-shrink:0;display:flex;align-items:center;gap:6px}
+.nav-tab:hover{background:#f9fafb}
+.nav-tab.active{border-bottom-color:#1D9E75;color:#1D9E75;font-weight:600}
+.view{display:none;padding:1.25rem;max-width:920px;margin:0 auto}
+.view.active{display:block}
+.page-title{font-size:21px;font-weight:600;margin-bottom:3px}
+.page-sub{font-size:13px;color:#666;margin-bottom:1.25rem}
+.card{background:#fff;border:1px solid #e5e7e6;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.card-label{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.9rem}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg{margin-bottom:.9rem}
+.fl{display:block;font-size:13px;font-weight:500;margin-bottom:5px;color:#444}
+input[type=text],input[type=tel],input[type=password],input[type=email],select,textarea{width:100%;padding:9px 12px;border-radius:8px;border:1px solid #d1d5db;background:#fff;color:#1a1a1a;font-size:14px;font-family:inherit;outline:none;transition:border .15s}
+input:focus,select:focus,textarea:focus{border-color:#1D9E75;box-shadow:0 0 0 3px rgba(29,158,117,.12)}
+textarea{resize:vertical;min-height:80px}
+.priority-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.prio-btn{padding:10px 4px;border-radius:8px;border:1.5px solid #e5e7e6;cursor:pointer;text-align:center;font-size:12px;font-weight:500;transition:all .15s;background:#fff}
+.prio-btn.sel-low{border-color:#3B6D11;background:#EAF3DE;color:#27500A}
+.prio-btn.sel-medium{border-color:#854F0B;background:#FAEEDA;color:#633806}
+.prio-btn.sel-high{border-color:#D85A30;background:#FAECE7;color:#712B13}
+.prio-btn.sel-urgent{border-color:#A32D2D;background:#FCEBEB;color:#791F1F}
+.upload-zone{border:1.5px dashed #d1d5db;border-radius:8px;padding:1.25rem;text-align:center;cursor:pointer;background:#f9fafb;transition:all .15s}
+.upload-zone:hover{border-color:#1D9E75;background:rgba(29,158,117,.04)}
+.preview-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.preview-thumb{width:70px;height:70px;border-radius:8px;object-fit:cover;border:1px solid #e5e7e6}
+.btn{padding:9px 18px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:1px solid #d1d5db;background:#fff;color:#1a1a1a;transition:all .15s;font-family:inherit}
+.btn:hover{background:#f4f6f5}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-green{background:#1D9E75;color:#fff;border-color:#1D9E75}
+.btn-green:hover{background:#0F6E56}
+.btn-red{background:#E24B4A;color:#fff;border-color:#E24B4A}
+.btn-red:hover{background:#A32D2D}
+.btn-amber{background:#BA7517;color:#fff;border-color:#BA7517}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:12px;font-weight:500}
+.b-open{background:#E1F5EE;color:#085041}
+.b-progress{background:#FAEEDA;color:#854F0B}
+.b-resolved{background:#EAF3DE;color:#3B6D11}
+.b-low{background:#EAF3DE;color:#3B6D11}
+.b-medium{background:#FAEEDA;color:#854F0B}
+.b-high{background:#FAECE7;color:#712B13}
+.b-urgent{background:#FCEBEB;color:#A32D2D}
+.ticket{background:#fff;border:1px solid #e5e7e6;border-radius:12px;padding:1.1rem;margin-bottom:.7rem;cursor:pointer;transition:all .15s}
+.ticket:hover{border-color:#1D9E75;box-shadow:0 0 0 2px rgba(29,158,117,.08)}
+.ticket-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;gap:8px}
+.ticket-title{font-size:15px;font-weight:600}
+.ticket-badges{display:flex;gap:5px;flex-wrap:wrap;flex-shrink:0}
+.ticket-body{font-size:13px;color:#666;margin-bottom:8px}
+.ticket-meta{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:#888}
+.ticket-thumbs{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.t-thumb{width:56px;height:56px;border-radius:8px;object-fit:cover;border:1px solid #e5e7e6}
+.resolved-note{background:#E1F5EE;border:1px solid #9FE1CB;border-radius:8px;padding:.75rem 1rem;margin-top:8px;font-size:13px;color:#085041}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:1.25rem}
+.stat{background:#f4f6f5;border-radius:8px;padding:.9rem}
+.stat-l{font-size:11px;color:#888;margin-bottom:4px}
+.stat-n{font-size:26px;font-weight:700}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
+.fb{padding:5px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid #e5e7e6;background:#fff;color:#666;transition:all .15s}
+.fb.on{background:#1D9E75;color:#fff;border-color:#1D9E75}
+.worker-card{background:#fff;border:1px solid #e5e7e6;border-radius:12px;padding:1rem;display:flex;gap:12px;align-items:flex-start;margin-bottom:.7rem}
+.avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.notif-item{padding:.85rem 1rem;margin-bottom:.5rem;font-size:13px;border-left:3px solid #1D9E75;background:#f4f6f5;border-radius:0 8px 8px 0}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:flex-start;justify-content:center;padding:1rem;overflow-y:auto}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:12px;width:100%;max-width:580px;padding:1.5rem;border:1px solid #e5e7e6;margin:auto}
+.modal-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:#888;line-height:1}
+.cat-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.toast{background:#085041;color:#E1F5EE;padding:.8rem 1.1rem;border-radius:8px;font-size:13px;position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;display:none;max-width:300px;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.toast.show{display:block}
+.loader{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-state{text-align:center;padding:2.5rem 1rem;color:#888}
+.step-flow{display:flex;gap:0;margin-bottom:1.5rem;overflow-x:auto}
+.step{display:flex;align-items:center;gap:6px;padding:7px 12px;font-size:12px;color:#888;border-bottom:2px solid #e5e7e6;flex-shrink:0}
+.step.active{color:#1D9E75;border-bottom-color:#1D9E75;font-weight:600}
+.step-dot{width:7px;height:7px;border-radius:50%;background:#d1d5db;flex-shrink:0}
+.step.active .step-dot{background:#1D9E75}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;background:#f4f6f5}
+.login-card{background:#fff;border:1px solid #e5e7e6;border-radius:16px;padding:2rem;width:100%;max-width:380px}
+.login-logo{width:56px;height:56px;border-radius:50%;background:#0F6E56;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;margin:0 auto 1rem}
+.login-title{text-align:center;font-size:20px;font-weight:700;margin-bottom:4px}
+.login-sub{text-align:center;font-size:13px;color:#888;margin-bottom:1.5rem}
+.role-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:1.25rem}
+.role-tab{padding:8px 4px;border-radius:8px;border:1px solid #e5e7e6;cursor:pointer;text-align:center;font-size:12px;font-weight:500;transition:all .15s;background:#fff}
+.role-tab.active{background:#E1F5EE;border-color:#1D9E75;color:#085041}
+.connecting-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:16px;background:#f4f6f5}
+.spin-big{width:44px;height:44px;border:3px solid #e5e7e6;border-top-color:#1D9E75;border-radius:50%;animation:spin .8s linear infinite}
+@media(max-width:580px){.form-row{grid-template-columns:1fr}.priority-grid{grid-template-columns:repeat(2,1fr)}.stat-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<!-- Connecting screen -->
+<div class="connecting-screen" id="connecting-screen">
+  <div class="brand-logo" style="width:56px;height:56px;font-size:18px;background:#0F6E56;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff">MY</div>
+  <div style="font-size:16px;font-weight:600;color:#1a1a1a">MAZA YERWADA</div>
+  <div class="spin-big"></div>
+  <div style="font-size:13px;color:#888">Connecting to Firebase...</div>
+</div>
+
+<!-- Login screen -->
+<div class="login-wrap" id="login-screen" style="display:none">
+  <div class="login-card">
+    <div class="login-logo">MY</div>
+    <div class="login-title">MAZA YERWADA</div>
+    <div class="login-sub" id="login-sub">माझा यरवडा — Public Complaint Portal</div>
+    <div class="role-tabs">
+      <div class="role-tab active" onclick="selectRole('citizen',this)">👤 Citizen</div>
+      <div class="role-tab" onclick="selectRole('worker',this)">🧑‍🔧 Worker</div>
+      <div class="role-tab" onclick="selectRole('admin',this)">🛡️ Admin</div>
+    </div>
+    <div class="fg"><label class="fl">Name / Phone</label><input type="text" id="login-name" placeholder="Enter your name or phone"></div>
+    <div id="login-pass-wrap" style="display:none" class="fg"><label class="fl">Password</label><input type="password" id="login-pass" placeholder="Enter password"></div>
+    <button class="btn btn-green" id="login-btn" onclick="doLogin()" style="width:100%;padding:11px">Enter Portal</button>
+    <div id="login-error" style="color:#E24B4A;font-size:13px;margin-top:8px;display:none"></div>
+    <div style="margin-top:1rem;font-size:12px;color:#aaa;text-align:center">Admin password: <strong>admin123</strong> &nbsp;|&nbsp; Worker password: <strong>worker123</strong></div>
+  </div>
+</div>
+
+<!-- Main app -->
+<div id="app" style="display:none">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-logo">MY</div>
+      <div>
+        <div class="brand-name">MAZA YERWADA</div>
+        <div class="brand-sub" id="brand-sub">माझा यरवडा — Public Complaint Portal</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="lang-bar">
+        <button class="lang-btn active" onclick="setLang('en',this)">EN</button>
+        <button class="lang-btn" onclick="setLang('hi',this)">हिंदी</button>
+        <button class="lang-btn" onclick="setLang('mr',this)">मराठी</button>
+      </div>
+      <button class="btn" onclick="doLogout()" style="font-size:12px;padding:4px 10px;color:#666">Logout</button>
+    </div>
+  </div>
+
+  <div class="nav" id="main-nav">
+    <div class="nav-tab active" onclick="switchView('citizen',this)" id="tab-citizen">📋 Report Issue</div>
+    <div class="nav-tab" onclick="switchView('worker',this)" id="tab-worker" style="display:none">🧑‍🔧 Worker Panel</div>
+    <div class="nav-tab" onclick="switchView('admin',this)" id="tab-admin" style="display:none">🛡️ Admin</div>
+    <div class="nav-tab" onclick="switchView('notif',this)" id="tab-notif">🔔 Notifications <span id="notif-badge" style="background:#E24B4A;color:#fff;border-radius:20px;padding:1px 7px;font-size:11px;margin-left:2px;display:none"></span></div>
+  </div>
+
+  <!-- CITIZEN VIEW -->
+  <div id="view-citizen" class="view active">
+    <div class="page-title" id="t-report-title">Report a problem</div>
+    <div class="page-sub" id="t-report-sub">Yerwada, Pune — submit your civic complaint</div>
+
+    <div class="step-flow">
+      <div class="step active"><div class="step-dot"></div><span id="s1">Fill details</span></div>
+      <div class="step active"><div class="step-dot"></div><span id="s2">Add media</span></div>
+      <div class="step active"><div class="step-dot"></div><span id="s3">Set priority</span></div>
+      <div class="step active"><div class="step-dot"></div><span id="s4">Submit</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-label" id="t-personal">Personal info</div>
+      <div class="form-row">
+        <div class="fg"><label class="fl" id="t-name-l">Your name</label><input type="text" id="c-name" placeholder="e.g. Rahul Patil"></div>
+        <div class="fg"><label class="fl" id="t-phone-l">Phone / WhatsApp</label><input type="tel" id="c-phone" placeholder="98765 43210"></div>
+      </div>
+      <div class="fg">
+        <label class="fl" id="t-cat-l">Category</label>
+        <select id="c-cat">
+          <option value="">-- select --</option>
+          <option value="Water">💧 Water / Drainage</option>
+          <option value="Road">🛣️ Road / Pothole</option>
+          <option value="Electricity">⚡ Electricity</option>
+          <option value="Education">📚 Education</option>
+          <option value="Cleanliness">🧹 Cleanliness / Garbage</option>
+          <option value="Safety">🚨 Safety / Security</option>
+          <option value="Other">📌 Other</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl" id="t-loc-l">Location / Lane</label><input type="text" id="c-loc" placeholder="e.g. Lane 4, near bus stand, Yerwada"></div>
+      <div class="fg"><label class="fl" id="t-desc-l">Describe the problem</label><textarea id="c-desc" placeholder="Explain what is happening, since when, how it affects people..."></textarea></div>
+    </div>
+
+    <div class="card">
+      <div class="card-label" id="t-media-l">Add photo / video (max 15 sec)</div>
+      <div class="upload-zone" onclick="document.getElementById('c-file').click()">
+        <div style="font-size:24px;margin-bottom:6px">📷</div>
+        <div style="font-size:14px;font-weight:500;margin-bottom:4px" id="t-upload-btn">Tap to add photos or video</div>
+        <div style="font-size:12px;color:#888" id="t-upload-hint">Photos or short video (max 15 seconds)</div>
+        <input type="file" id="c-file" accept="image/*,video/*" multiple style="display:none" onchange="handleMedia(this,'c-previews','citizen-media')">
+      </div>
+      <div class="preview-row" id="c-previews"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-label" id="t-prio-l">Set priority level</div>
+      <div class="priority-grid">
+        <div class="prio-btn" id="pb-low" onclick="setPrio('low')"><div style="font-size:18px;margin-bottom:4px">🟢</div><span id="pl-low">Low</span><div style="font-size:10px;color:#888;margin-top:2px">1–3 days</div></div>
+        <div class="prio-btn sel-medium" id="pb-medium" onclick="setPrio('medium')"><div style="font-size:18px;margin-bottom:4px">🟡</div><span id="pl-medium">Medium</span><div style="font-size:10px;color:#888;margin-top:2px">Same day</div></div>
+        <div class="prio-btn" id="pb-high" onclick="setPrio('high')"><div style="font-size:18px;margin-bottom:4px">🟠</div><span id="pl-high">High</span><div style="font-size:10px;color:#888;margin-top:2px">Few hours</div></div>
+        <div class="prio-btn" id="pb-urgent" onclick="setPrio('urgent')"><div style="font-size:18px;margin-bottom:4px">🔴</div><span id="pl-urgent">Urgent</span><div style="font-size:10px;color:#888;margin-top:2px">Immediate!</div></div>
+      </div>
+    </div>
+
+    <button class="btn btn-green" id="t-submit-btn" onclick="submitTicket()" style="width:100%;padding:12px;font-size:15px">Submit complaint</button>
+
+    <div style="margin-top:2rem">
+      <div class="page-title" style="font-size:18px;margin-bottom:4px" id="t-my-tickets">My complaints</div>
+      <div class="page-sub" id="t-track-sub">Track the status of your submitted issues</div>
+      <div id="my-list"><div class="empty-state">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- WORKER VIEW -->
+  <div id="view-worker" class="view">
+    <div class="page-title">Social worker panel</div>
+    <div class="page-sub" id="t-worker-sub">Assigned complaints for your area</div>
+    <div class="stat-grid">
+      <div class="stat"><div class="stat-l">Assigned</div><div class="stat-n" id="sw-assigned">0</div></div>
+      <div class="stat"><div class="stat-l">In progress</div><div class="stat-n" id="sw-inprog">0</div></div>
+      <div class="stat"><div class="stat-l">Resolved</div><div class="stat-n" id="sw-res">0</div></div>
+      <div class="stat"><div class="stat-l">Urgent open</div><div class="stat-n" style="color:#E24B4A" id="sw-urg">0</div></div>
+    </div>
+    <div class="filter-row">
+      <div class="fb on" onclick="wFilter(this,'all')">All</div>
+      <div class="fb" onclick="wFilter(this,'open')">Open</div>
+      <div class="fb" onclick="wFilter(this,'in-progress')">In progress</div>
+      <div class="fb" onclick="wFilter(this,'resolved')">Resolved</div>
+      <div class="fb" onclick="wFilter(this,'urgent')">Urgent</div>
+    </div>
+    <div id="worker-list"><div class="empty-state">Loading...</div></div>
+
+    <div style="margin-top:1.5rem">
+      <div class="page-title" style="font-size:16px;margin-bottom:1rem">Worker profiles</div>
+      <div id="worker-profiles"></div>
+    </div>
+  </div>
+
+  <!-- ADMIN VIEW -->
+  <div id="view-admin" class="view">
+    <div class="page-title">Admin dashboard</div>
+    <div class="page-sub">Full control — manage workers, complaints, and analytics</div>
+    <div class="stat-grid">
+      <div class="stat"><div class="stat-l">Total</div><div class="stat-n" id="a-total">0</div></div>
+      <div class="stat"><div class="stat-l">Open</div><div class="stat-n" id="a-open">0</div></div>
+      <div class="stat"><div class="stat-l">In progress</div><div class="stat-n" id="a-prog">0</div></div>
+      <div class="stat"><div class="stat-l">Resolved</div><div class="stat-n" id="a-res">0</div></div>
+      <div class="stat"><div class="stat-l">Urgent</div><div class="stat-n" style="color:#E24B4A" id="a-urg">0</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Category analytics</div>
+      <div id="cat-chart"><div style="font-size:13px;color:#888">No data yet.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Worker management</div>
+      <div id="admin-workers" style="margin-bottom:1rem"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="text" id="nw-name" placeholder="Worker name" style="flex:1;min-width:120px">
+        <input type="text" id="nw-area" placeholder="Area assigned" style="flex:1;min-width:120px">
+        <button class="btn btn-green" onclick="addWorker()">+ Add worker</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">All complaints</div>
+      <div class="filter-row">
+        <div class="fb on" onclick="aFilter(this,'all')">All</div>
+        <div class="fb" onclick="aFilter(this,'open')">Open</div>
+        <div class="fb" onclick="aFilter(this,'in-progress')">In progress</div>
+        <div class="fb" onclick="aFilter(this,'resolved')">Resolved</div>
+        <div class="fb" onclick="aFilter(this,'urgent')">Urgent</div>
+      </div>
+      <div id="admin-list"><div class="empty-state">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS VIEW -->
+  <div id="view-notif" class="view">
+    <div class="page-title">Notifications</div>
+    <div class="page-sub">Updates on your complaints and assignments</div>
+    <div id="notif-list"><div class="empty-state">No notifications yet.</div></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="modal-inner">
+    <div class="modal-hd">
+      <div><div style="font-size:11px;color:#888" id="m-id"></div><div style="font-size:18px;font-weight:700" id="m-title"></div></div>
+      <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">✕</button>
+    </div>
+    <div id="m-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase SDKs -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDEK3f0xyJ-i_DdhJdANfMUvm8WIc7J5Gw",
+  authDomain: "maza-yerwada.firebaseapp.com",
+  projectId: "maza-yerwada",
+  storageBucket: "maza-yerwada.firebasestorage.app",
+  messagingSenderId: "508297523197",
+  appId: "1:508297523197:web:ea1d311fcf078a09fbf394",
+  measurementId: "G-XHKN2855DZ"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+// ---- GLOBALS ----
+let tickets = [];
+let workers = [];
+let notifications = [];
+let currentUser = null;
+let selectedPrio = 'medium';
+let wCurrentFilter = 'all';
+let aCurrentFilter = 'all';
+let mediaFiles = { citizen: [], modal: [] };
+
+const LANG = {
+  en:{brandSub:'Maza Yerwada — Public Complaint Portal',reportTitle:'Report a problem',reportSub:'Yerwada, Pune — submit your civic complaint',s1:'Fill details',s2:'Add media',s3:'Set priority',s4:'Submit',personal:'Personal info',nameLbl:'Your name',phoneLbl:'Phone / WhatsApp',catLbl:'Category',locLbl:'Location / Lane',descLbl:'Describe the problem',mediaLbl:'Add photo / video (max 15 sec)',uploadBtn:'Tap to add photos or video',uploadHint:'Photos or video up to 15 seconds',prioLbl:'Set priority level',plLow:'Low',plMedium:'Medium',plHigh:'High',plUrgent:'Urgent',submitBtn:'Submit complaint',myTickets:'My complaints',trackSub:'Track the status of your submitted issues',workerSub:'Assigned complaints for your area'},
+  hi:{brandSub:'माझा यरवडा — सार्वजनिक शिकायत पोर्टल',reportTitle:'समस्या रिपोर्ट करें',reportSub:'यरवडा, पुणे — अपनी शिकायत दर्ज करें',s1:'जानकारी भरें',s2:'फोटो/वीडियो',s3:'प्राथमिकता',s4:'सबमिट',personal:'व्यक्तिगत जानकारी',nameLbl:'आपका नाम',phoneLbl:'फोन / WhatsApp',catLbl:'श्रेणी',locLbl:'स्थान / गली',descLbl:'समस्या का विवरण',mediaLbl:'फोटो / वीडियो जोड़ें (15 सेकंड)',uploadBtn:'फोटो या वीडियो जोड़ें',uploadHint:'15 सेकंड तक का वीडियो',prioLbl:'प्राथमिकता चुनें',plLow:'कम',plMedium:'मध्यम',plHigh:'अधिक',plUrgent:'अत्यावश्यक',submitBtn:'शिकायत दर्ज करें',myTickets:'मेरी शिकायतें',trackSub:'अपनी शिकायतों की स्थिति देखें',workerSub:'आपके क्षेत्र की असाइन शिकायतें'},
+  mr:{brandSub:'माझा यरवडा — सार्वजनिक तक्रार पोर्टल',reportTitle:'समस्या नोंदवा',reportSub:'यरवडा, पुणे — तुमची नागरी तक्रार सादर करा',s1:'तपशील भरा',s2:'फोटो/व्हिडिओ',s3:'प्राधान्य',s4:'सबमिट',personal:'वैयक्तिक माहिती',nameLbl:'तुमचे नाव',phoneLbl:'फोन / WhatsApp',catLbl:'श्रेणी',locLbl:'ठिकाण / गल्ली',descLbl:'समस्येचे वर्णन करा',mediaLbl:'फोटो / व्हिडिओ जोडा (15 सेकंद)',uploadBtn:'फोटो किंवा व्हिडिओ जोडा',uploadHint:'15 सेकंदांपर्यंत व्हिडिओ',prioLbl:'प्राधान्य पातळी सेट करा',plLow:'कमी',plMedium:'मध्यम',plHigh:'जास्त',plUrgent:'तातडीचे',submitBtn:'तक्रार सादर करा',myTickets:'माझ्या तक्रारी',trackSub:'तुमच्या तक्रारींची स्थिती पाहा',workerSub:'तुमच्या क्षेत्रातील नियुक्त तक्रारी'}
+};
+
+// ---- HELPERS ----
+window.showToast = function(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+};
+
+function genId() { return 'YW-' + String(Date.now()).slice(-5); }
+
+function statusBadge(s) {
+  if (s === 'open') return '<span class="badge b-open">Open</span>';
+  if (s === 'in-progress') return '<span class="badge b-progress">In progress</span>';
+  return '<span class="badge b-resolved">Resolved ✓</span>';
+}
+function prioBadge(p) {
+  const m = {low:'b-low',medium:'b-medium',high:'b-high',urgent:'b-urgent'};
+  const l = {low:'Low',medium:'Medium',high:'High',urgent:'🔴 Urgent'};
+  return `<span class="badge ${m[p]||'b-low'}">${l[p]||p}</span>`;
+}
+
+function tsStr() {
+  return new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+// ---- LANGUAGE ----
+window.setLang = function(l, btn) {
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const L = LANG[l];
+  const ids = ['brandSub','reportTitle','reportSub','s1','s2','s3','s4','personal','nameLbl','phoneLbl','catLbl','locLbl','descLbl','mediaLbl','uploadBtn','uploadHint','prioLbl','plLow','plMedium','plHigh','plUrgent','submitBtn','myTickets','trackSub','workerSub'];
+  const domIds = ['brand-sub','t-report-title','t-report-sub','s1','s2','s3','s4','t-personal','t-name-l','t-phone-l','t-cat-l','t-loc-l','t-desc-l','t-media-l','t-upload-btn','t-upload-hint','t-prio-l','pl-low','pl-medium','pl-high','pl-urgent','t-submit-btn','t-my-tickets','t-track-sub','t-worker-sub'];
+  ids.forEach((k,i) => { const el = document.getElementById(domIds[i]); if(el && L[k]) el.textContent = L[k]; });
+};
+
+// ---- LOGIN ----
+window.selectRole = function(role, btn) {
+  document.querySelectorAll('.role-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  btn.dataset.role = role;
+  document.getElementById('login-pass-wrap').style.display = (role === 'admin' || role === 'worker') ? 'block' : 'none';
+};
+
+window.doLogin = function() {
+  const name = document.getElementById('login-name').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const role = document.querySelector('.role-tab.active')?.dataset.role || 'citizen';
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+
+  if (!name) { errEl.textContent = 'Please enter your name.'; errEl.style.display = 'block'; return; }
+
+  if (role === 'admin' && pass !== 'admin123') {
+    errEl.textContent = 'Wrong admin password.'; errEl.style.display = 'block'; return;
+  }
+  if (role === 'worker' && pass !== 'worker123') {
+    errEl.textContent = 'Wrong worker password.'; errEl.style.display = 'block'; return;
+  }
+
+  currentUser = { name, role };
+  localStorage.setItem('my_user', JSON.stringify(currentUser));
+  showApp();
+};
+
+window.doLogout = function() {
+  currentUser = null;
+  localStorage.removeItem('my_user');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+};
+
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  // Show/hide tabs based on role
+  document.getElementById('tab-worker').style.display = (currentUser.role === 'worker' || currentUser.role === 'admin') ? 'flex' : 'none';
+  document.getElementById('tab-admin').style.display = currentUser.role === 'admin' ? 'flex' : 'none';
+
+  // Default to worker panel if worker
+  if (currentUser.role === 'worker') {
+    switchView('worker', document.getElementById('tab-worker'));
+  }
+
+  listenTickets();
+  listenWorkers();
+}
+
+// ---- FIREBASE REALTIME LISTENERS ----
+function listenTickets() {
+  const q = query(collection(db, 'tickets'), orderBy('createdAt', 'desc'));
+  onSnapshot(q, snap => {
+    tickets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderAll();
+  }, err => {
+    console.error(err);
+    showToast('Could not load tickets. Check Firestore rules.');
+  });
+}
+
+function listenWorkers() {
+  onSnapshot(collection(db, 'workers'), snap => {
+    workers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderAll();
+  });
+}
+
+// ---- MEDIA HANDLING ----
+window.handleMedia = function(input, previewId, cacheKey) {
+  const prev = document.getElementById(previewId);
+  if (!mediaFiles[cacheKey]) mediaFiles[cacheKey] = [];
+  Array.from(input.files).slice(0, 4).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      if (file.type.startsWith('video')) {
+        const d = document.createElement('div');
+        d.style.cssText = 'width:70px;height:70px;border-radius:8px;background:#f4f6f5;border:1px solid #e5e7e6;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;flex-direction:column;gap:2px';
+        d.innerHTML = '<span style="font-size:20px">▶</span><span>video</span>';
+        prev.appendChild(d);
+      } else {
+        const img = document.createElement('img');
+        img.src = e.target.result; img.className = 'preview-thumb';
+        prev.appendChild(img);
+      }
+      mediaFiles[cacheKey].push({ data: e.target.result, type: file.type, name: file.name });
+    };
+    reader.readAsDataURL(file);
+  });
+};
+
+async function uploadMedia(files, ticketId, folder) {
+  const urls = [];
+  for (let i = 0; i < files.length; i++) {
+    const f = files[i];
+    try {
+      const storageRef = ref(storage, `${folder}/${ticketId}_${i}_${f.name||'file'}`);
+      await uploadString(storageRef, f.data, 'data_url');
+      const url = await getDownloadURL(storageRef);
+      urls.push(url);
+    } catch(e) {
+      // If storage fails, store base64 directly (fallback)
+      urls.push(f.data);
+    }
+  }
+  return urls;
+}
+
+// ---- SUBMIT TICKET ----
+window.submitTicket = async function() {
+  const name = document.getElementById('c-name').value.trim();
+  const phone = document.getElementById('c-phone').value.trim();
+  const cat = document.getElementById('c-cat').value;
+  const loc = document.getElementById('c-loc').value.trim();
+  const desc = document.getElementById('c-desc').value.trim();
+  if (!name || !cat || !loc || !desc) { showToast('Please fill all required fields.'); return; }
+
+  const btn = document.getElementById('t-submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loader"></span>Submitting...';
+
+  try {
+    // Auto assign to a worker
+    const wAssigned = workers.length ? workers[Math.floor(Math.random() * workers.length)] : null;
+    const ticketId = genId();
+
+    // Upload media
+    let photoUrls = [];
+    if (mediaFiles['citizen'] && mediaFiles['citizen'].length) {
+      showToast('Uploading photos...');
+      photoUrls = await uploadMedia(mediaFiles['citizen'], ticketId, 'complaints');
+    }
+
+    await addDoc(collection(db, 'tickets'), {
+      ticketId,
+      name, phone, cat, loc, desc,
+      priority: selectedPrio,
+      status: 'open',
+      photos: photoUrls,
+      worker: wAssigned ? wAssigned.id : null,
+      workerName: wAssigned ? wAssigned.name : null,
+      response: '',
+      responsePhotos: [],
+      submittedBy: currentUser.name,
+      createdAt: serverTimestamp(),
+      ts: tsStr()
+    });
+
+    // Add notification to Firestore
+    await addDoc(collection(db, 'notifications'), {
+      msg: `Your complaint ${ticketId} has been submitted and assigned to ${wAssigned ? wAssigned.name : 'a worker'}.`,
+      for: name,
+      ts: tsStr(),
+      createdAt: serverTimestamp()
+    });
+
+    document.getElementById('c-name').value = '';
+    document.getElementById('c-phone').value = '';
+    document.getElementById('c-cat').value = '';
+    document.getElementById('c-loc').value = '';
+    document.getElementById('c-desc').value = '';
+    document.getElementById('c-previews').innerHTML = '';
+    mediaFiles['citizen'] = [];
+
+    showToast('Complaint submitted! ID: ' + ticketId);
+    // Reload notifications
+    loadNotifications();
+  } catch(e) {
+    showToast('Error: ' + e.message);
+    console.error(e);
+  }
+
+  btn.disabled = false;
+  btn.textContent = document.getElementById('t-submit-btn').dataset.orig || 'Submit complaint';
+};
+
+// ---- PRIORITY ----
+window.setPrio = function(p) {
+  selectedPrio = p;
+  ['low','medium','high','urgent'].forEach(x => {
+    const el = document.getElementById('pb-' + x);
+    el.className = 'prio-btn' + (p === x ? ' sel-' + x : '');
+  });
+};
+
+// ---- RENDER TICKETS ----
+function renderTicketCard(t, mode) {
+  const workerObj = workers.find(w => w.id === t.worker);
+  const photos = (t.photos || []).slice(0, 3).map(p =>
+    (p.startsWith('data:video') || p.includes('video'))
+      ? `<div style="width:56px;height:56px;border-radius:8px;background:#f4f6f5;display:flex;align-items:center;justify-content:center;font-size:12px;border:1px solid #e5e7e6">▶</div>`
+      : `<img src="${p}" class="t-thumb">`
+  ).join('');
+
+  const respHtml = t.response
+    ? `<div class="resolved-note">✓ ${t.response}${(t.responsePhotos||[]).length
+        ? '<div class="preview-row" style="margin-top:6px">' + t.responsePhotos.map(p=>`<img src="${p}" class="t-thumb">`).join('') + '</div>' : ''
+      }</div>` : '';
+
+  return `<div class="ticket" onclick="openModal('${t.id}','${mode}')">
+    <div class="ticket-top">
+      <div>
+        <div style="font-size:11px;color:#888">${t.ticketId||t.id} · ${t.ts||''}</div>
+        <div class="ticket-title">${t.cat}</div>
+      </div>
+      <div class="ticket-badges">${statusBadge(t.status)}${prioBadge(t.priority)}</div>
+    </div>
+    <div class="ticket-body">${(t.desc||'').length>110 ? t.desc.slice(0,110)+'…' : t.desc}</div>
+    <div class="ticket-meta">
+      <span>📍 ${t.loc}</span><span>👤 ${t.name}</span>
+      ${workerObj ? `<span>🧑‍🔧 ${workerObj.name}</span>` : ''}
+    </div>
+    ${photos ? `<div class="ticket-thumbs">${photos}</div>` : ''}
+    ${respHtml}
+  </div>`;
+}
+
+function renderMyTickets() {
+  const el = document.getElementById('my-list');
+  const mine = tickets.filter(t => t.submittedBy === currentUser?.name || t.name === currentUser?.name);
+  el.innerHTML = mine.length
+    ? mine.map(t => renderTicketCard(t, 'citizen')).join('')
+    : '<div class="empty-state">No complaints yet. Submit one above!</div>';
+}
+
+let wf = 'all';
+window.wFilter = function(btn, f) {
+  wf = f;
+  document.querySelectorAll('#view-worker .fb').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderWorkerView();
+};
+
+function renderWorkerView() {
+  let list = tickets;
+  if (wf === 'urgent') list = tickets.filter(t => t.priority === 'urgent' && t.status !== 'resolved');
+  else if (wf !== 'all') list = tickets.filter(t => t.status === wf);
+
+  // If worker role, only show their assigned
+  if (currentUser?.role === 'worker') {
+    const workerObj = workers.find(w => w.name.toLowerCase() === currentUser.name.toLowerCase());
+    if (workerObj) list = list.filter(t => t.worker === workerObj.id);
+  }
+
+  document.getElementById('worker-list').innerHTML = list.length
+    ? list.map(t => renderTicketCard(t, 'worker')).join('')
+    : '<div class="empty-state">No tickets in this category.</div>';
+
+  document.getElementById('sw-assigned').textContent = tickets.length;
+  document.getElementById('sw-inprog').textContent = tickets.filter(t => t.status === 'in-progress').length;
+  document.getElementById('sw-res').textContent = tickets.filter(t => t.status === 'resolved').length;
+  document.getElementById('sw-urg').textContent = tickets.filter(t => t.priority === 'urgent' && t.status !== 'resolved').length;
+
+  // Worker profiles
+  const el = document.getElementById('worker-profiles');
+  el.innerHTML = workers.map(w => {
+    const resolved = tickets.filter(t => t.worker === w.id && t.status === 'resolved').length;
+    const stars = '★'.repeat(Math.round(w.rating || 4)) + '☆'.repeat(5 - Math.round(w.rating || 4));
+    return `<div class="worker-card">
+      <div class="avatar" style="background:${w.color||'#1D9E75'}22;color:${w.color||'#1D9E75'}">${w.avatar||w.name.slice(0,2).toUpperCase()}</div>
+      <div style="flex:1">
+        <div style="font-size:15px;font-weight:600">${w.name}</div>
+        <div style="font-size:12px;color:#888">📍 ${w.area}</div>
+        <div style="font-size:12px;margin-top:4px;display:flex;gap:12px;flex-wrap:wrap">
+          <span>Resolved: <strong>${resolved}</strong></span>
+          <span style="color:#BA7517">${stars} ${w.rating||4}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('') || '<div style="font-size:13px;color:#888">No workers yet.</div>';
+}
+
+let af = 'all';
+window.aFilter = function(btn, f) {
+  af = f;
+  document.querySelectorAll('#view-admin .filter-row .fb').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderAdminView();
+};
+
+function renderAdminView() {
+  let list = tickets;
+  if (af === 'urgent') list = tickets.filter(t => t.priority === 'urgent');
+  else if (af !== 'all') list = tickets.filter(t => t.status === af);
+
+  document.getElementById('admin-list').innerHTML = list.length
+    ? list.map(t => renderTicketCard(t, 'admin')).join('')
+    : '<div class="empty-state">No tickets.</div>';
+
+  document.getElementById('a-total').textContent = tickets.length;
+  document.getElementById('a-open').textContent = tickets.filter(t => t.status === 'open').length;
+  document.getElementById('a-prog').textContent = tickets.filter(t => t.status === 'in-progress').length;
+  document.getElementById('a-res').textContent = tickets.filter(t => t.status === 'resolved').length;
+  document.getElementById('a-urg').textContent = tickets.filter(t => t.priority === 'urgent').length;
+
+  renderCatChart();
+  renderAdminWorkers();
+}
+
+function renderCatChart() {
+  const cats = {};
+  tickets.forEach(t => { if(t.cat) cats[t.cat] = (cats[t.cat]||0)+1; });
+  const total = tickets.length || 1;
+  const el = document.getElementById('cat-chart');
+  if (!Object.keys(cats).length) { el.innerHTML = '<div style="font-size:13px;color:#888">No data yet.</div>'; return; }
+  el.innerHTML = Object.entries(cats).sort((a,b) => b[1]-a[1]).map(([c,n]) => `
+    <div class="cat-bar-row">
+      <div style="width:120px;font-size:13px;flex-shrink:0">${c}</div>
+      <div style="flex:1;background:#f4f6f5;border-radius:20px;height:9px;overflow:hidden">
+        <div style="height:100%;width:${Math.round(n/total*100)}%;background:#1D9E75;border-radius:20px"></div>
+      </div>
+      <div style="width:24px;font-size:13px;font-weight:600;text-align:right">${n}</div>
+    </div>`).join('');
+}
+
+function renderAdminWorkers() {
+  const colors = ['#1D9E75','#378ADD','#D85A30','#D4537E','#7F77DD','#BA7517'];
+  document.getElementById('admin-workers').innerHTML = workers.map((w,i) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f4f6f5">
+      <div class="avatar" style="width:36px;height:36px;font-size:12px;background:${w.color||colors[i%6]}22;color:${w.color||colors[i%6]}">${w.avatar||w.name.slice(0,2).toUpperCase()}</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600">${w.name}</div><div style="font-size:12px;color:#888">${w.area}</div></div>
+      <button class="btn" style="font-size:12px;padding:4px 10px;color:#A32D2D;border-color:#F7C1C1" onclick="removeWorker('${w.id}')">Remove</button>
+    </div>`).join('') || '<div style="font-size:13px;color:#888;padding:8px 0">No workers yet.</div>';
+}
+
+// ---- MODAL ----
+window.openModal = function(id, mode) {
+  const t = tickets.find(x => x.id === id); if (!t) return;
+  const wObj = workers.find(x => x.id === t.worker);
+  document.getElementById('m-id').textContent = (t.ticketId||t.id) + ' · ' + (t.ts||'');
+  document.getElementById('m-title').textContent = t.cat + ' — ' + t.loc;
+
+  const photos = (t.photos||[]).map(p =>
+    (p.startsWith('data:video') || p.includes('video'))
+      ? `<div style="padding:14px;background:#f4f6f5;border-radius:8px;text-align:center;font-size:13px;margin-bottom:8px">▶ Video attached</div>`
+      : `<img src="${p}" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-bottom:8px">`
+  ).join('');
+
+  const respSection = t.response ? `<div class="resolved-note" style="margin-top:1rem">
+    <strong>Work completed</strong><br>${t.response}
+    ${(t.responsePhotos||[]).map(p=>`<img src="${p}" style="width:100%;max-height:160px;object-fit:cover;border-radius:8px;margin-top:6px">`).join('')}
+  </div>` : '';
+
+  let action = '';
+  if (mode === 'worker') {
+    action = `<div style="background:#f4f6f5;border-radius:8px;padding:1rem;margin-top:1rem">
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px">Update this complaint</div>
+      <div class="fg"><label class="fl">Status</label>
+        <select id="m-status">
+          <option value="open" ${t.status==='open'?'selected':''}>Open</option>
+          <option value="in-progress" ${t.status==='in-progress'?'selected':''}>In progress</option>
+          <option value="resolved" ${t.status==='resolved'?'selected':''}>Resolved</option>
+        </select></div>
+      <div class="fg"><label class="fl">Work note</label>
+        <textarea id="m-note" placeholder="e.g. Water tank repaired, Road work scheduled...">${t.response||''}</textarea></div>
+      <div class="fg"><label class="fl">Add proof photo</label>
+        <div class="upload-zone" onclick="document.getElementById('m-file').click()" style="padding:.75rem">
+          <div style="font-size:12px;color:#888">Tap to add proof of work done</div>
+          <input type="file" id="m-file" accept="image/*" multiple style="display:none" onchange="handleMedia(this,'m-previews','modal')">
+        </div>
+        <div class="preview-row" id="m-previews"></div>
+      </div>
+      <button class="btn btn-green" id="save-worker-btn" onclick="saveWorkerUpdate('${id}')" style="width:100%">Save &amp; notify resident</button>
+    </div>`;
+  } else if (mode === 'admin') {
+    const workerOpts = workers.map(wk => `<option value="${wk.id}" ${t.worker===wk.id?'selected':''}>${wk.name}</option>`).join('');
+    action = `<div style="background:#f4f6f5;border-radius:8px;padding:1rem;margin-top:1rem">
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px">Admin controls</div>
+      <div class="fg"><label class="fl">Assign to worker</label>
+        <select id="m-assign"><option value="">Unassigned</option>${workerOpts}</select></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+        <button class="btn" onclick="adminStatus('${id}','open')">Mark open</button>
+        <button class="btn btn-amber" onclick="adminStatus('${id}','in-progress')">In progress</button>
+        <button class="btn btn-green" onclick="adminStatus('${id}','resolved')">Mark resolved</button>
+        <button class="btn btn-red" onclick="deleteTicket('${id}')">Delete</button>
+      </div>
+      <button class="btn btn-green" onclick="adminAssign('${id}')" style="width:100%">Save assignment</button>
+    </div>`;
+  }
+
+  document.getElementById('m-body').innerHTML = `
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem">
+      ${statusBadge(t.status)}${prioBadge(t.priority)}
+      ${wObj ? `<span class="badge" style="background:#f4f6f5;color:#666">🧑‍🔧 ${wObj.name}</span>` : ''}
+    </div>
+    <div style="font-size:14px;margin-bottom:.75rem;color:#666">👤 ${t.name}${t.phone?' · 📞 '+t.phone:''}</div>
+    <div style="font-size:14px;margin-bottom:1rem;line-height:1.7">${t.desc}</div>
+    ${photos}${respSection}${action}`;
+
+  mediaFiles['modal'] = [];
+  document.getElementById('modal').classList.add('open');
+};
+
+window.saveWorkerUpdate = async function(id) {
+  const t = tickets.find(x => x.id === id); if (!t) return;
+  const btn = document.getElementById('save-worker-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="loader"></span>Saving...';
+
+  try {
+    const status = document.getElementById('m-status').value;
+    const note = document.getElementById('m-note').value;
+    let rPhotos = t.responsePhotos || [];
+
+    if (mediaFiles['modal'] && mediaFiles['modal'].length) {
+      const uploaded = await uploadMedia(mediaFiles['modal'], id, 'proofs');
+      rPhotos = [...rPhotos, ...uploaded];
+    }
+
+    await updateDoc(doc(db, 'tickets', id), { status, response: note, responsePhotos: rPhotos });
+
+    // Notification
+    const msg = status === 'resolved'
+      ? `Your complaint ${t.ticketId||t.id} has been resolved. ${note}`
+      : `Work started on your complaint ${t.ticketId||t.id}.`;
+    await addDoc(collection(db, 'notifications'), { msg, for: t.name, ts: tsStr(), createdAt: serverTimestamp() });
+
+    document.getElementById('modal').classList.remove('open');
+    showToast('Updated! Resident notified.');
+    loadNotifications();
+  } catch(e) {
+    showToast('Error: ' + e.message);
+  }
+  btn.disabled = false; btn.textContent = 'Save & notify resident';
+};
+
+window.adminStatus = async function(id, s) {
+  try { await updateDoc(doc(db, 'tickets', id), { status: s }); } catch(e) { showToast(e.message); }
+  document.getElementById('modal').classList.remove('open');
+};
+
+window.adminAssign = async function(id) {
+  const v = document.getElementById('m-assign').value;
+  const wObj = workers.find(x => x.id === v);
+  try {
+    await updateDoc(doc(db, 'tickets', id), { worker: v||null, workerName: wObj?.name||null });
+    if (wObj) {
+      const t = tickets.find(x => x.id === id);
+      await addDoc(collection(db, 'notifications'), { msg: `Complaint ${t?.ticketId||id} assigned to ${wObj.name}.`, for: 'admin', ts: tsStr(), createdAt: serverTimestamp() });
+    }
+    document.getElementById('modal').classList.remove('open');
+    showToast('Assignment saved.');
+    loadNotifications();
+  } catch(e) { showToast(e.message); }
+};
+
+window.deleteTicket = async function(id) {
+  if (!confirm('Delete this complaint permanently?')) return;
+  try { await deleteDoc(doc(db, 'tickets', id)); } catch(e) { showToast(e.message); }
+  document.getElementById('modal').classList.remove('open');
+};
+
+window.addWorker = async function() {
+  const name = document.getElementById('nw-name').value.trim();
+  const area = document.getElementById('nw-area').value.trim();
+  if (!name || !area) { showToast('Enter worker name and area.'); return; }
+  const colors = ['#1D9E75','#378ADD','#D85A30','#D4537E','#7F77DD','#BA7517'];
+  try {
+    await addDoc(collection(db, 'workers'), {
+      name, area, rating: 4.0,
+      avatar: name.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase(),
+      color: colors[workers.length % colors.length]
+    });
+    document.getElementById('nw-name').value = '';
+    document.getElementById('nw-area').value = '';
+    showToast('Worker ' + name + ' added!');
+  } catch(e) { showToast(e.message); }
+};
+
+window.removeWorker = async function(id) {
+  if (!confirm('Remove this worker?')) return;
+  try { await deleteDoc(doc(db, 'workers', id)); } catch(e) { showToast(e.message); }
+};
+
+window.closeModal = function(e) {
+  if (e.target === document.getElementById('modal')) document.getElementById('modal').classList.remove('open');
+};
+
+// ---- NOTIFICATIONS ----
+async function loadNotifications() {
+  try {
+    const q = query(collection(db, 'notifications'), orderBy('createdAt', 'desc'));
+    const snap = await getDocs(q);
+    notifications = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const unread = notifications.length;
+    const b = document.getElementById('notif-badge');
+    b.textContent = unread > 9 ? '9+' : unread;
+    b.style.display = unread ? 'inline' : 'none';
+  } catch(e) {}
+}
+
+function renderNotifications() {
+  const el = document.getElementById('notif-list');
+  el.innerHTML = notifications.length
+    ? notifications.map(n => `<div class="notif-item">
+        <div>${n.msg}</div>
+        <div style="font-size:11px;color:#888;margin-top:2px">${n.ts||''}</div>
+      </div>`).join('')
+    : '<div class="empty-state">No notifications yet.</div>';
+  document.getElementById('notif-badge').style.display = 'none';
+}
+
+// ---- VIEW SWITCHING ----
+window.switchView = function(v, el) {
+  document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(x => x.classList.remove('active'));
+  document.getElementById('view-' + v).classList.add('active');
+  el.classList.add('active');
+  if (v === 'notif') renderNotifications();
+  renderAll();
+};
+
+function renderAll() {
+  renderMyTickets();
+  renderWorkerView();
+  renderAdminView();
+}
+
+// ---- BOOT ----
+document.getElementById('connecting-screen').style.display = 'none';
+const saved = localStorage.getItem('my_user');
+if (saved) {
+  currentUser = JSON.parse(saved);
+  showApp();
+} else {
+  document.getElementById('login-screen').style.display = 'flex';
+}
+loadNotifications();
+setPrio('medium');
+
+// role tab init
+document.querySelector('.role-tab').dataset.role = 'citizen';
+document.querySelectorAll('.role-tab').forEach((b,i) => {
+  const roles = ['citizen','worker','admin'];
+  b.dataset.role = roles[i];
+});
+</script>
+
+</body>
+</html>
